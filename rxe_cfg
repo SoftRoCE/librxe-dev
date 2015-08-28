@@ -434,21 +434,36 @@ sub add_persistent {
     }
 }
 
-# add new rxe device to eth if not already up
+# add the rxe device to eth if not already up, returns
+# zero if rxe device added.
 sub rxe_add {
     my $eth = $_[0];
 
     if (!($eth =~ /[\w]+[\d]/)) {
 	print "eth_name ($eth) looks bogus\n";
-	return;
+	return 1;
     }
 
     if (!defined($rxe_names{$eth})) {
 	system("echo '$eth' > $parms/add");
+	if (!$no_persist) {
+	    add_persistent($eth);
+	    commit_persistent();
+	}
+	return 0;
     }
-    if (!$no_persist) {
-	add_persistent($eth);
-	commit_persistent();
+    return 1;
+}
+
+# Add and initialize a new rxe device for specified Ethernet I/F
+sub do_rxe_add {
+    my $eth = $_[0];
+
+    if (!rxe_add($eth)) {
+	get_names();
+	my $rxe = $rxe_names{$eth};
+	do_up_if($rxe);
+	do_set_roce_mode($rxe);
     }
 }
 
@@ -533,6 +548,17 @@ sub do_set_roce_mode {
     rmdir "/sys/kernel/config/rdma_cm/$rxed";
 }
 
+# up the Ethernet IF for a rxe device
+sub do_up_if {
+    my $rxed = $_[0];
+    my $stat = get_devinfo($rxed);
+    if ($stat =~ "PORT_DOWN") {
+	my $cmd = "ifconfig $eth_names{$rxed} up";
+	system($cmd);
+    }
+    return;
+}
+
 # bring up rxe
 sub do_start {
     my $proto_str = "";
@@ -554,15 +580,8 @@ sub do_start {
     get_names();
 
     foreach my $rxe (@rxe_array) {
-	my $stat = get_devinfo($rxe);
-	if ($stat =~ "PORT_DOWN") {
-	    my $cmd = "ifconfig $eth_names{$rxe} up";
-	    system($cmd);
-	}
-    }
-
-    foreach my $rxe (@rxe_array) {
-        do_set_roce_mode($rxe);
+	do_up_if($rxe);
+	do_set_roce_mode($rxe);
     }
 }
 
@@ -705,7 +724,7 @@ sub main {
     switch($arg1) {
         case "stop"	{ do_stop(); 			exit; }
         case "debug"	{ do_debug($arg2);	 	exit; }
-        case "add"	{ rxe_add($arg2); 		exit; }
+        case "add"	{ do_rxe_add($arg2); 		exit; }
         case "remove"	{ rxe_remove($arg2); 		exit; }
         case "help"	{ usage();			exit; }
     }
