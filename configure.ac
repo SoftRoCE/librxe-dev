@@ -6,7 +6,7 @@ AC_INIT(librxe, 1.0.0)
 AC_CONFIG_SRCDIR([src/rxe.c])
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(librxe, 1.0.0)
+AM_INIT_AUTOMAKE([subdir-objects])
 AM_PROG_LIBTOOL
 
 AC_ARG_WITH([valgrind],
