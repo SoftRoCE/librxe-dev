@@ -1,4 +1,5 @@
 AM_CFLAGS = -g -Wall -D_GNU_SOURCE
+ACLOCAL_AMFLAGS = -I m4
   
 rxe_version_script = @RXE_VERSION_SCRIPT@
 
