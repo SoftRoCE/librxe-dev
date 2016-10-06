@@ -1,5 +1,9 @@
 AM_CFLAGS = -g -Wall -D_GNU_SOURCE
 ACLOCAL_AMFLAGS = -I m4
+
+if FALLBACK_RDMA_USER_RXE
+    AM_CFLAGS += -I $(srcdir)/compat/include
+endif
   
 rxe_version_script = @RXE_VERSION_SCRIPT@
 

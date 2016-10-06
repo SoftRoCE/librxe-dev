@@ -61,6 +61,14 @@ AC_CHECK_HEADER(valgrind/memcheck.h,
         AC_MSG_ERROR([Valgrind memcheck support requested, but <valgrind/memcheck.h> not found.])
     fi])
 
+AC_CHECK_HEADERS([netinet/in.h rdma/rdma_user_rxe.h], [],
+    [AC_MSG_WARN([Using built-in fallback rdma_user_rxe.h.])],
+    [[#ifdef HAVE_NETINET_IN_H
+      #include <netinet/in.h>
+      #endif]])
+AM_CONDITIONAL(FALLBACK_RDMA_USER_RXE,
+    [test "$ac_cv_header_rdma_rdma_user_rxe_h" = "no"])
+
 AC_C_CONST
 AC_CHECK_SIZEOF(long)
 
