@@ -6,7 +6,8 @@ AC_INIT(librxe, 1.0.0)
 AC_CONFIG_SRCDIR([src/rxe.c])
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(librxe, 1.0.0)
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([subdir-objects])
 AM_PROG_LIBTOOL
 
 AC_ARG_WITH([valgrind],
@@ -59,6 +60,14 @@ AC_CHECK_HEADER(valgrind/memcheck.h,
     [if test $want_valgrind = yes; then
         AC_MSG_ERROR([Valgrind memcheck support requested, but <valgrind/memcheck.h> not found.])
     fi])
+
+AC_CHECK_HEADERS([netinet/in.h rdma/rdma_user_rxe.h], [],
+    [AC_MSG_WARN([Using built-in fallback rdma_user_rxe.h.])],
+    [[#ifdef HAVE_NETINET_IN_H
+      #include <netinet/in.h>
+      #endif]])
+AM_CONDITIONAL(FALLBACK_RDMA_USER_RXE,
+    [test "$ac_cv_header_rdma_rdma_user_rxe_h" = "no"])
 
 AC_C_CONST
 AC_CHECK_SIZEOF(long)
