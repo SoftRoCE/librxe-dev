@@ -1,0 +1,15 @@
+Makefile.in
+Makefile
+/aclocal.m4
+/autom4te.cache/
+/config.h.in
+/config.h
+/config.log
+/config.status
+/config/
+/configure
+/librxe.spec
+/libtool
+.deps/
+/stamp-h1
+/build/
