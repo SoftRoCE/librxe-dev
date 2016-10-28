@@ -144,6 +144,8 @@ sub get_dev_info {
     my @my_eth_devs = `ls /sys/class/net`;
     foreach my $my_eth_dev (@my_eth_devs) {
         chomp($my_eth_dev);
+	next if ("${my_eth_dev}" eq "bonding_masters"); # fix bonding
+	next if ("${my_eth_dev}" =~ "\;"); # fix ";vdsmdummy;"
         my $my_dev_type = `cat /sys/class/net/${my_eth_dev}/type`;
         if ($my_dev_type == "1") {
             push(@my_eth_list, "$my_eth_dev");
